@@ -155,55 +155,105 @@ class CustomCategoryWidget extends StatefulWidget {
 }
 
 class _CustomCategoryWidgetState extends State<CustomCategoryWidget> {
+  void _showCategoryBottomSheet(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      builder: (BuildContext context) {
+        return Container(
+          padding: EdgeInsets.all(16.0),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                'Select Category',
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              // Add your category options here
+              ListTile(
+                title: Text('Food'),
+                onTap: () {
+                  widget.controller.text = 'Food';
+                  Navigator.pop(context);
+                },
+              ),
+              ListTile(
+                title: Text('Transport'),
+                onTap: () {
+                  widget.controller.text = 'Transport';
+                  Navigator.pop(context);
+                },
+              ),
+              ListTile(
+                title: Text('Entertainment'),
+                onTap: () {
+                  widget.controller.text = 'Entertainment';
+                  Navigator.pop(context);
+                },
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Padding(
       padding: EdgeInsets.fromLTRB(20, 10, 20, 10),
-      child: TextFormField(
-        controller: widget.controller,
-        readOnly: !widget.isEditing,
-        style: TextStyle(fontSize: 14), // Set text size here
-        decoration: InputDecoration(
-          hintText: widget.hintText,
-          prefixIcon: SizedBox(
-            width: 24,
-            height: 24,
-            child: SvgPicture.asset(
-              widget.leftIconPath,
-              color: Colors.yellow,
-              fit: BoxFit.scaleDown,
-            ),
-          ),
-          suffixIcon: SizedBox(
-            width: 40,
-            child: Center(
-              child: Container(
-                padding: EdgeInsets.all(8.0),
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: Colors.grey[100],
-                ),
-                child: Icon(
-                  Icons.arrow_forward_ios_rounded,
-                  color: Colors.grey,
-                  size: 16,
+      child: GestureDetector(
+        onTap: () => _showCategoryBottomSheet(context),
+        child: AbsorbPointer(
+          child: TextFormField(
+            controller: widget.controller,
+            readOnly: !widget.isEditing,
+            style: TextStyle(fontSize: 14), // Set text size here
+            decoration: InputDecoration(
+              hintText: widget.hintText,
+              prefixIcon: SizedBox(
+                width: 24,
+                height: 24,
+                child: SvgPicture.asset(
+                  widget.leftIconPath,
+                  color: Colors.yellow,
+                  fit: BoxFit.scaleDown,
                 ),
               ),
+              suffixIcon: SizedBox(
+                width: 40,
+                child: Center(
+                  child: Container(
+                    padding: EdgeInsets.all(8.0),
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: Colors.grey[100],
+                    ),
+                    child: Icon(
+                      Icons.arrow_forward_ios_rounded,
+                      color: Colors.grey,
+                      size: 16,
+                    ),
+                  ),
+                ),
+              ),
+              enabledBorder: OutlineInputBorder(
+                borderSide: BorderSide(
+                  color: Colors.grey,
+                  width: 1,
+                ),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderSide: BorderSide(
+                  color: Color.fromARGB(225, 67, 67, 67),
+                  width: 1,
+                ),
+                borderRadius: BorderRadius.circular(8),
+              ),
             ),
-          ),
-          enabledBorder: OutlineInputBorder(
-            borderSide: BorderSide(
-              color: Colors.grey,
-              width: 1,
-            ),
-            borderRadius: BorderRadius.circular(8),
-          ),
-          focusedBorder: OutlineInputBorder(
-            borderSide: BorderSide(
-              color: Color.fromARGB(225, 67, 67, 67),
-              width: 1,
-            ),
-            borderRadius: BorderRadius.circular(8),
           ),
         ),
       ),

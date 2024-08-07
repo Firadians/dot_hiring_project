@@ -9,100 +9,123 @@ import 'bloc/expense_bloc.dart';
 import 'bloc/category_bloc.dart';
 import 'bloc/transaction_bloc.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:intl/intl.dart';
 
 class HomeScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            SizedBox(height: 50), // Add space from the top of the screen
-            BlocBuilder<UserBloc, UserState>(
-              builder: (context, state) {
-                if (state is UserInitial) {
-                  return UserIntroduction(username: null);
-                } else if (state is UserLoaded) {
-                  return UserIntroduction(username: state.user.username);
-                } else if (state is UserError) {
-                  return UserIntroduction(username: 'Error: ${state.message}');
-                } else {
-                  return UserIntroduction(username: null);
-                }
-              },
-            ),
-            SizedBox(height: 20),
-            BlocBuilder<ExpenseBloc, ExpenseState>(
-              builder: (context, state) {
-                if (state is ExpenseInitial) {
-                  return ExpenseSummary(dailyExpense: 0.0, monthlyExpense: 0.0);
-                } else if (state is ExpenseLoaded) {
-                  return ExpenseSummary(
-                    dailyExpense: state.dailyExpense,
-                    monthlyExpense: state.monthlyExpense,
-                  );
-                } else if (state is ExpenseError) {
-                  return Center(child: Text('Error: ${state.message}'));
-                } else {
-                  return ExpenseSummary(dailyExpense: 0.0, monthlyExpense: 0.0);
-                }
-              },
-            ),
-            SizedBox(height: 20),
-            Text(
-              "Pengeluaran berdasarkan kategori",
-              style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    fontSize: 14,
-                    fontWeight: FontWeight.bold,
+      body: CustomScrollView(
+        slivers: [
+          SliverPadding(
+            padding: const EdgeInsets.all(8.0),
+            sliver: SliverToBoxAdapter(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  SizedBox(height: 35), // Add space from the top of the screen
+                  BlocBuilder<UserBloc, UserState>(
+                    builder: (context, state) {
+                      if (state is UserInitial) {
+                        return UserIntroduction(username: null);
+                      } else if (state is UserLoaded) {
+                        return UserIntroduction(username: state.user.username);
+                      } else if (state is UserError) {
+                        return UserIntroduction(
+                            username: 'Error: ${state.message}');
+                      } else {
+                        return UserIntroduction(username: null);
+                      }
+                    },
                   ),
+                  SizedBox(height: 20),
+                  BlocBuilder<ExpenseBloc, ExpenseState>(
+                    builder: (context, state) {
+                      if (state is ExpenseInitial) {
+                        return ExpenseSummary(
+                            dailyExpense: 0, monthlyExpense: 0);
+                      } else if (state is ExpenseLoaded) {
+                        return ExpenseSummary(
+                          dailyExpense: state.dailyExpense.toInt(),
+                          monthlyExpense: state.monthlyExpense.toInt(),
+                        );
+                      } else if (state is ExpenseError) {
+                        return Center(child: Text('Error: ${state.message}'));
+                      } else {
+                        return ExpenseSummary(
+                            dailyExpense: 0, monthlyExpense: 0);
+                      }
+                    },
+                  ),
+                ],
+              ),
             ),
-            BlocBuilder<CategoryBloc, CategoryState>(
+          ),
+          SliverPadding(
+            padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
+            sliver: SliverToBoxAdapter(
+              child: Text(
+                "Pengeluaran berdasarkan kategori",
+                style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                      fontSize: 14,
+                      fontWeight: FontWeight.bold,
+                    ),
+              ),
+            ),
+          ),
+          SliverPadding(
+            padding: const EdgeInsets.symmetric(vertical: 8.0),
+            sliver: BlocBuilder<CategoryBloc, CategoryState>(
               builder: (context, state) {
                 if (state is CategoryInitial) {
-                  return Center(child: CircularProgressIndicator());
+                  return SliverToBoxAdapter(
+                      child: Center(child: CircularProgressIndicator()));
                 } else if (state is CategoryLoaded) {
-                  return CategoryList(categories: state.categories);
+                  return SliverToBoxAdapter(
+                      child: CategoryList(categories: state.categories));
                 } else if (state is CategoryError) {
-                  return Center(child: Text('Error: ${state.message}'));
+                  return SliverToBoxAdapter(
+                      child: Center(child: Text('Error: ${state.message}')));
                 } else {
-                  return Center(child: CircularProgressIndicator());
+                  return SliverToBoxAdapter(
+                      child: Center(child: CircularProgressIndicator()));
                 }
               },
             ),
-            SizedBox(height: 20),
-            Expanded(
-              child: BlocBuilder<TransactionBloc, TransactionState>(
-                builder: (context, state) {
-                  if (state is TransactionInitial) {
-                    return Center(child: CircularProgressIndicator());
-                  } else if (state is TransactionLoaded) {
-                    final today = DateTime.now();
-                    final yesterday = today.subtract(Duration(days: 1));
+          ),
+          SliverPadding(
+            padding: const EdgeInsets.symmetric(vertical: 8.0),
+            sliver: BlocBuilder<TransactionBloc, TransactionState>(
+              builder: (context, state) {
+                if (state is TransactionInitial) {
+                  return SliverFillRemaining(
+                      child: Center(child: CircularProgressIndicator()));
+                } else if (state is TransactionLoaded) {
+                  final today = DateTime.now();
+                  final yesterday = today.subtract(Duration(days: 1));
+                  final todayTransactions =
+                      state.transactions.where((transaction) {
+                    final transactionDate = transaction.date;
+                    return transactionDate.year == today.year &&
+                        transactionDate.month == today.month &&
+                        transactionDate.day == today.day;
+                  }).toList();
 
-                    final todayTransactions =
-                        state.transactions.where((transaction) {
-                      final transactionDate = transaction.date;
-                      return transactionDate.year == today.year &&
-                          transactionDate.month == today.month &&
-                          transactionDate.day == today.day;
-                    }).toList();
+                  final yesterdayTransactions =
+                      state.transactions.where((transaction) {
+                    final transactionDate = transaction.date;
+                    return transactionDate.year == yesterday.year &&
+                        transactionDate.month == yesterday.month &&
+                        transactionDate.day == yesterday.day &&
+                        transaction.description.toLowerCase() == "paket data";
+                  }).toList();
 
-                    final yesterdayTransactions =
-                        state.transactions.where((transaction) {
-                      final transactionDate = transaction.date;
-                      return transactionDate.year == yesterday.year &&
-                          transactionDate.month == yesterday.month &&
-                          transactionDate.day == yesterday.day &&
-                          transaction.description.toLowerCase() == "paket data";
-                    }).toList();
-
-                    return SingleChildScrollView(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
+                  return SliverList(
+                    delegate: SliverChildListDelegate(
+                      [
+                        Padding(
+                          padding: const EdgeInsets.only(left: 8.0),
+                          child: Text(
                             "Hari ini",
                             style:
                                 Theme.of(context).textTheme.bodySmall?.copyWith(
@@ -110,9 +133,13 @@ class HomeScreen extends StatelessWidget {
                                       fontWeight: FontWeight.bold,
                                     ),
                           ),
-                          TransactionList(transactions: todayTransactions),
-                          if (yesterdayTransactions.isNotEmpty) ...[
-                            Text(
+                        ),
+                        SizedBox(height: 8), // Reduced height
+                        TransactionList(transactions: todayTransactions),
+                        if (yesterdayTransactions.isNotEmpty) ...[
+                          Padding(
+                            padding: const EdgeInsets.only(left: 8.0),
+                            child: Text(
                               "Kemarin",
                               style: Theme.of(context)
                                   .textTheme
@@ -122,31 +149,42 @@ class HomeScreen extends StatelessWidget {
                                     fontWeight: FontWeight.bold,
                                   ),
                             ),
-                            TransactionList(
-                                transactions: yesterdayTransactions),
-                          ],
+                          ),
+                          SizedBox(height: 8), // Reduced height
+                          TransactionList(transactions: yesterdayTransactions),
                         ],
-                      ),
-                    );
-                  } else if (state is TransactionError) {
-                    return Center(child: Text('Error: ${state.message}'));
-                  } else {
-                    return Center(child: CircularProgressIndicator());
-                  }
-                },
-              ),
+                      ],
+                    ),
+                  );
+                } else if (state is TransactionError) {
+                  return SliverFillRemaining(
+                      child: Center(child: Text('Error: ${state.message}')));
+                } else {
+                  return SliverFillRemaining(
+                      child: Center(child: CircularProgressIndicator()));
+                }
+              },
             ),
-          ],
-        ),
+          ),
+        ],
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          Navigator.of(context).push(MaterialPageRoute(
-            builder: (context) => AddExpenseScreen(),
-          ));
+          Navigator.of(context).push(
+            MaterialPageRoute(
+              builder: (context) => AddExpenseScreen(),
+            ),
+          );
         },
-        child: Icon(Icons.add),
-        backgroundColor: Colors.blue,
+        child: Icon(
+          Icons.add,
+          color: Colors.white, // Set the icon color to white
+        ),
+        backgroundColor: Colors.blue, // Background color of the button
+        shape: RoundedRectangleBorder(
+          borderRadius:
+              BorderRadius.circular(100), // Ensures the button is circular
+        ),
       ),
     );
   }
@@ -170,11 +208,15 @@ class UserIntroduction extends StatelessWidget {
                     Text.rich(
                       TextSpan(
                         text: "Halo, ",
-                        style: Theme.of(context).textTheme.headline6,
+                        style: TextStyle(
+                          fontSize: 18, // Set the font size to 18
+                          fontWeight: FontWeight.bold,
+                        ),
                         children: [
                           TextSpan(
                             text: username,
                             style: TextStyle(
+                              fontSize: 18, // Set the font size to 18
                               fontWeight: FontWeight.bold,
                             ),
                           ),
@@ -209,8 +251,8 @@ class UserIntroduction extends StatelessWidget {
 }
 
 class ExpenseSummary extends StatelessWidget {
-  final double dailyExpense;
-  final double monthlyExpense;
+  final int dailyExpense;
+  final int monthlyExpense;
 
   ExpenseSummary({required this.dailyExpense, required this.monthlyExpense});
 
@@ -219,13 +261,13 @@ class ExpenseSummary extends StatelessWidget {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        ExpenseCard(
+        ExpenseContainer(
           title: "Pengeluaran\nhari ini",
           amount: dailyExpense,
           color: Colors.blue, // Color for daily expense
         ),
-        SizedBox(width: 20), // Add space between the cards
-        ExpenseCard(
+        SizedBox(width: 20), // Add space between the containers
+        ExpenseContainer(
           title: "Pengeluaranmu\nbulan ini",
           amount: monthlyExpense,
           color: Colors.teal, // Color for monthly expense
@@ -235,37 +277,47 @@ class ExpenseSummary extends StatelessWidget {
   }
 }
 
-class ExpenseCard extends StatelessWidget {
+class ExpenseContainer extends StatelessWidget {
   final String title;
-  final double amount;
+  final int amount;
   final Color color;
 
-  ExpenseCard({required this.title, required this.amount, required this.color});
+  ExpenseContainer(
+      {required this.title, required this.amount, required this.color});
 
   @override
   Widget build(BuildContext context) {
     return Expanded(
-      child: Card(
-        color: color,
-        child: Padding(
-          padding: const EdgeInsets.all(12.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                title,
-                style: TextStyle(color: Colors.white),
-              ),
-              SizedBox(height: 10),
-              Text(
-                "Rp. $amount",
-                style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold),
-              ),
-            ],
-          ),
+      child: Container(
+        decoration: BoxDecoration(
+          color: color,
+          borderRadius: BorderRadius.circular(10), // Rounded corners
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.1),
+              spreadRadius: 2,
+              blurRadius: 5,
+              offset: Offset(0, 3), // changes position of shadow
+            ),
+          ],
+        ),
+        padding: const EdgeInsets.all(12.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              title,
+              style: TextStyle(color: Colors.white),
+            ),
+            SizedBox(height: 10),
+            Text(
+              "Rp. $amount",
+              style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold),
+            ),
+          ],
         ),
       ),
     );
@@ -283,17 +335,17 @@ class CategoryList extends StatelessWidget {
       scrollDirection: Axis.horizontal,
       child: Row(
         children: categories.map((category) {
-          return CategoryCard(category: category);
+          return CategoryContainer(category: category);
         }).toList(),
       ),
     );
   }
 }
 
-class CategoryCard extends StatelessWidget {
+class CategoryContainer extends StatelessWidget {
   final Category category;
 
-  CategoryCard({required this.category});
+  CategoryContainer({required this.category});
 
   // Function to determine color based on category name
   Color _getColorForCategory(String name) {
@@ -301,49 +353,68 @@ class CategoryCard extends StatelessWidget {
       'Makanan': Colors.yellow,
       'Internet': Colors.blue,
       'Transportasi': Colors.purple,
+      'Edukasi': Colors.orange,
+      'Hadiah': Colors.orange,
+      'Belanja': Colors.orange,
+      'Alat Rumah': Colors.orange,
+      'Olahraga': Colors.orange,
       'Hiburan': Colors.orange,
-      'Lainnya': Colors.purple,
     };
 
-    // Return a color or a default color if the name is not found
     return colorMap[name] ?? Colors.grey;
   }
 
   @override
   Widget build(BuildContext context) {
+    final currencyFormat = NumberFormat.currency(
+        locale: 'id_ID', symbol: 'Rp. ', decimalDigits: 0);
+
     return Padding(
-      padding: const EdgeInsets.all(8.0),
-      child: Card(
-        elevation: 0, // Remove default shadow if needed
+      padding: const EdgeInsets.fromLTRB(8, 8, 4, 8),
+      child: Container(
+        decoration: BoxDecoration(
+          color: const Color.fromARGB(255, 255, 255, 255),
+          borderRadius: BorderRadius.circular(10), // Rounded corners
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.1),
+              spreadRadius: 2,
+              blurRadius: 5,
+              offset: Offset(0, 3), // changes position of shadow
+            ),
+          ],
+        ),
+        padding: const EdgeInsets.fromLTRB(12, 12, 42, 12),
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Container(
-              width: 50, // Adjust width as needed
-              height: 50, // Adjust height as needed
+              width: 35,
+              height: 35,
               decoration: BoxDecoration(
-                color: _getColorForCategory(
-                    category.name), // Get color based on name
+                color: _getColorForCategory(category.name),
                 shape: BoxShape.circle,
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.2), // Shadow color
-                    blurRadius: 4.0, // Shadow blur radius
-                    spreadRadius: 2.0, // Shadow spread radius
-                    offset: Offset(0, 2), // Shadow offset
-                  ),
-                ],
               ),
               child: Center(
                 child: SvgPicture.asset(
-                  'assets/${category.icon}', // Your SVG file path
-                  color: Colors.white, // SVG icon color
+                  'assets/${category.icon}',
+                  color: Colors.white,
                   semanticsLabel: 'Category Icon',
                 ),
               ),
             ),
+            SizedBox(height: 12),
+            Text(
+              category.name,
+            ),
             SizedBox(height: 8),
-            Text(category.name),
-            Text("Rp. ${category.amount}"),
+            Text(
+              currencyFormat.format(category.amount.toInt()),
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            SizedBox(height: 8),
           ],
         ),
       ),
@@ -357,16 +428,78 @@ class TransactionList extends StatelessWidget {
 
   TransactionList({required this.transactions, this.title});
 
+  // Function to determine SVG asset path and color based on description
+  Widget _getIconForDescription(String description) {
+    final iconData = {
+      'Ayam Geprek': {
+        'path': 'assets/pizza_vector.svg',
+        'color': Colors.yellow, // Example color
+      },
+      'Gojek': {
+        'path': 'assets/hadiah_vector.svg',
+        'color': Colors.purple, // Example color
+      },
+      'Paket Data': {
+        'path': 'assets/makanan_vector.svg',
+        'color': Colors.blue, // Example color
+      },
+      // Add more mappings as needed
+    };
+
+    final iconInfo = iconData[description] ??
+        {
+          'path': 'assets/icons/default.svg',
+          'color': Colors.grey, // Default color
+        };
+
+    return SvgPicture.asset(
+      iconInfo['path'] as String,
+      color: iconInfo['color'] as Color, // Set icon color based on description
+      width: 24, // Adjust width as needed
+      height: 24, // Adjust height as needed
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
+    final currencyFormat = NumberFormat.currency(
+        locale: 'id_ID', symbol: 'Rp. ', decimalDigits: 0);
+
     return ListView.builder(
       shrinkWrap: true,
       physics: NeverScrollableScrollPhysics(),
       itemCount: transactions.length,
       itemBuilder: (context, index) {
-        return ListTile(
-          title: Text(transactions[index].description),
-          trailing: Text("Rp. ${transactions[index].amount}"),
+        final transaction = transactions[index];
+        return Container(
+          decoration: BoxDecoration(
+            color: Color.fromARGB(255, 255, 255, 255),
+            borderRadius: BorderRadius.circular(10), // Rounded corners
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.1),
+                spreadRadius: 2,
+                blurRadius: 5,
+                offset: Offset(0, 3), // changes position of shadow
+              ),
+            ],
+          ),
+          margin: const EdgeInsets.symmetric(vertical: 4.0, horizontal: 8.0),
+          padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 1.0),
+          child: ListTile(
+            leading: _getIconForDescription(transaction.description),
+            title: Text(
+              transaction.description,
+              style: TextStyle(fontSize: 14),
+            ),
+            trailing: Text(
+              currencyFormat.format(transaction.amount.toInt()),
+              style: TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ),
         );
       },
     );
