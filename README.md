@@ -26,3 +26,5 @@ This screen is similar to the previous one but shows how the form looks when fil
 ![WhatsApp Image 2024-08-07 at 10 17 29_d62dc869](https://github.com/user-attachments/assets/abee675b-7732-453d-9025-84d2f3f75bda)
 
 ![WhatsApp Image 2024-08-07 at 10 17 29_0e7b0850](https://github.com/user-attachments/assets/68c12d9f-db7b-4f1a-8f1c-2dd76d815270)
+
+## If you want to try the app, you can access it on app-release.apk. The file is in main folder.
