@@ -10,7 +10,8 @@ Transaction Management: Add and view transactions with associated categories.
 Screens
 # Home Page
 The home page provides a summary of the user's daily and monthly expenses, a list of expenses categorized by type, and a transaction list displaying today's and yesterday's transactions.
-![WhatsApp Image 2024-08-07 at 09 05 10_dc2e7dc4](https://github.com/user-attachments/assets/551c2690-a769-4736-be60-208af19e18bd)
+![WhatsApp Image 2024-08-07 at 10 18 33_acc3ff1d](https://github.com/user-attachments/assets/97b1a4f6-0360-469f-8ca7-03fdd28d4a23)
+
 
 User Introduction: Displays a greeting with the username and a motivational message to track expenses.
 Expense Summary: Shows daily and monthly expenses in a card format.
