@@ -16,31 +16,31 @@ void main() async {
 
   // Insert a username (for testing purposes, you can remove this later)
   await dbHelper.insertUser("User!");
-  // await dbHelper.insertExpenses(30000, 335500);
+  await dbHelper.insertExpenses(30000, 335500);
 
   // // Insert categories (for testing purposes, you can remove this later)
-  // await dbHelper.insertCategories([
-  //   Category(name: "Makanan", amount: 70000, icon: "pizza_vector.svg"),
-  //   Category(name: "Internet", amount: 50000, icon: "makanan_vector.svg"),
-  //   Category(name: "Edukasi", amount: 20000, icon: "hadiah_vector.svg"),
-  //   Category(name: "Hadiah", amount: 20000, icon: "alat_rumah_vector.svg"),
-  //   Category(name: "Transportasi", amount: 20000, icon: "belanja_vector.svg"),
-  //   Category(name: "Belanja", amount: 20000, icon: "alat_rumah_vector.svg"),
-  //   Category(name: "Alat Rumah", amount: 20000, icon: "olahraga_vector.svg"),
-  //   Category(name: "Olahraga", amount: 20000, icon: "belanja_vector.svg"),
-  //   Category(name: "Hiburan", amount: 20000, icon: "belanja_vector.svg"),
-  // ]);
+  await dbHelper.insertCategories([
+    Category(name: "Makanan", amount: 70000, icon: "pizza_vector.svg"),
+    Category(name: "Internet", amount: 50000, icon: "makanan_vector.svg"),
+    Category(name: "Edukasi", amount: 20000, icon: "hadiah_vector.svg"),
+    Category(name: "Hadiah", amount: 20000, icon: "alat_rumah_vector.svg"),
+    Category(name: "Transportasi", amount: 20000, icon: "belanja_vector.svg"),
+    Category(name: "Belanja", amount: 20000, icon: "alat_rumah_vector.svg"),
+    Category(name: "Alat Rumah", amount: 20000, icon: "olahraga_vector.svg"),
+    Category(name: "Olahraga", amount: 20000, icon: "belanja_vector.svg"),
+    Category(name: "Hiburan", amount: 20000, icon: "belanja_vector.svg"),
+  ]);
 
   // // Insert transactions (for testing purposes, you can remove this later)
-  // await dbHelper.insertTransactions([
-  //   Transaction(
-  //       description: "Ayam Geprek", amount: 15000, date: DateTime.now()),
-  //   Transaction(description: "Gojek", amount: 15000, date: DateTime.now()),
-  //   Transaction(
-  //       description: "Paket Data",
-  //       amount: 50000,
-  //       date: DateTime.now().subtract(Duration(days: 1))),
-  // ]);
+  await dbHelper.insertTransactions([
+    Transaction(
+        description: "Ayam Geprek", amount: 15000, date: DateTime.now()),
+    Transaction(description: "Gojek", amount: 15000, date: DateTime.now()),
+    Transaction(
+        description: "Paket Data",
+        amount: 50000,
+        date: DateTime.now().subtract(Duration(days: 1))),
+  ]);
 
   runApp(const MyApp());
 }

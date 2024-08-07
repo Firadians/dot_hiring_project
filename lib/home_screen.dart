@@ -352,13 +352,13 @@ class CategoryContainer extends StatelessWidget {
     final colorMap = {
       'Makanan': Colors.yellow,
       'Internet': Colors.blue,
-      'Transportasi': Colors.purple,
       'Edukasi': Colors.orange,
-      'Hadiah': Colors.orange,
-      'Belanja': Colors.orange,
-      'Alat Rumah': Colors.orange,
-      'Olahraga': Colors.orange,
-      'Hiburan': Colors.orange,
+      'Transport': Colors.purple,
+      'Belanja': Colors.green,
+      'Alat Rumah': Colors.purple,
+      'Olahraga': Colors.blue,
+      'Hiburan': Colors.blue,
+      'Hadiah': Colors.red,
     };
 
     return colorMap[name] ?? Colors.grey;

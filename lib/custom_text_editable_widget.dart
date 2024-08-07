@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:flutter/services.dart';
+import 'models/category_model.dart';
+import 'database.dart';
 
 class CustomTextEditableWidget extends StatefulWidget {
   final String hintText;
@@ -156,45 +158,81 @@ class CustomCategoryWidget extends StatefulWidget {
 
 class _CustomCategoryWidgetState extends State<CustomCategoryWidget> {
   void _showCategoryBottomSheet(BuildContext context) {
+    // Color map for category background
+    final Map<String, Color> colorMap = {
+      'Makanan': Colors.yellow,
+      'Internet': Colors.blue,
+      'Edukasi': Colors.orange,
+      'Transport': Colors.purple,
+      'Belanja': Colors.green,
+      'Alat Rumah': Colors.purple,
+      'Olahraga': Colors.blue,
+      'Hiburan': Colors.blue,
+      'Hadiah': Colors.red,
+      // Default color
+      'default': Colors.grey,
+    };
+
+    // Function to get color based on category name
+    Color _getColorForCategory(String name) {
+      return colorMap[name] ?? colorMap['default']!;
+    }
+
     showModalBottomSheet(
       context: context,
       builder: (BuildContext context) {
-        return Container(
-          padding: EdgeInsets.all(16.0),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text(
-                'Select Category',
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
+        return FutureBuilder<List<Category>>(
+          future: DatabaseHelper().fetchCategories(),
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return Center(child: CircularProgressIndicator());
+            } else if (snapshot.hasError) {
+              return Center(child: Text("Error: ${snapshot.error}"));
+            } else if (snapshot.hasData) {
+              return Container(
+                height: 360, // Increased height to fit 3 rows
+                padding: EdgeInsets.all(8),
+                child: GridView.count(
+                  crossAxisCount: 3,
+                  childAspectRatio: 1, // Adjusted for better fit
+                  children: List.generate(snapshot.data!.length, (index) {
+                    Category category = snapshot.data![index];
+                    return Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Container(
+                          width: 50,
+                          height: 50,
+                          decoration: BoxDecoration(
+                            color: _getColorForCategory(category.name),
+                            shape: BoxShape.circle,
+                          ),
+                          child: Center(
+                            child: SvgPicture.asset(
+                              'assets/${category.icon}',
+                              width: 24,
+                              height: 24,
+                              color: Colors.white,
+                            ),
+                          ),
+                        ),
+                        SizedBox(height: 8),
+                        Text(
+                          category.name,
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: Colors.grey,
+                          ),
+                        ),
+                      ],
+                    );
+                  }),
                 ),
-              ),
-              // Add your category options here
-              ListTile(
-                title: Text('Food'),
-                onTap: () {
-                  widget.controller.text = 'Food';
-                  Navigator.pop(context);
-                },
-              ),
-              ListTile(
-                title: Text('Transport'),
-                onTap: () {
-                  widget.controller.text = 'Transport';
-                  Navigator.pop(context);
-                },
-              ),
-              ListTile(
-                title: Text('Entertainment'),
-                onTap: () {
-                  widget.controller.text = 'Entertainment';
-                  Navigator.pop(context);
-                },
-              ),
-            ],
-          ),
+              );
+            } else {
+              return Center(child: Text("No categories found"));
+            }
+          },
         );
       },
     );
