@@ -1,4 +1,4 @@
-# README for Flutter Expense Tracker App
+# Expense Tracker App
 ## Introduction
 This Flutter application is an expense tracker that helps users manage their daily and monthly expenses. The app is built using the Flutter framework with state management handled by the Bloc pattern and data persistence using SQFlite.
 
